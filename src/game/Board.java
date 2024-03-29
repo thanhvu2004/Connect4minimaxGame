@@ -123,18 +123,17 @@ public class Board {
     }
 
     // Remove last disc (Minimax backtracking)
-    public boolean removeDisc(int column) {
+    public void removeDisc(int column) {
         if (column < 1 || column > COLUMNS) {
-            return false;
+            return;
         }
         column--;
         for (int i = ROWS - 1; i >= 0; i--) {
             if (board[i][column] != EMPTY_SLOT) {
                 board[i][column] = EMPTY_SLOT;
-                return true;
+                return;
             }
         }
-        return false;
     }
 
     public char getCell(int row, int column) {

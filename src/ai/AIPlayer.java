@@ -13,15 +13,15 @@ public class AIPlayer {
     }
 
     public int getBestMove(Board board) {
+        System.out.println("\nAI is thinking...");
         int bestMove = -1;
         int bestScore = Integer.MIN_VALUE;
-
+        Board boardCopy = board.copy();
         for (int col = 0; col < Board.COLUMNS; col++) {
-            Board boardCopy = board.copy();
-            if (boardCopy.isColumnAvailable(col)) {
-                boardCopy.addDisc(col, aiDisc);
+            if (boardCopy.isColumnAvailable(col+1)) {
+                boardCopy.addDisc(col+1, aiDisc);
                 int score = alphabeta(boardCopy, maxDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
-                boardCopy.removeDisc(col);
+                boardCopy.removeDisc(col+1);
 
                 if (score > bestScore) {
                     bestScore = score;
@@ -29,6 +29,7 @@ public class AIPlayer {
                 }
             }
         }
+        // If bestMove is still -1 here, it means all columns are full and no valid move can be made
         return bestMove;
     }
 
@@ -40,10 +41,10 @@ public class AIPlayer {
         if (maximizingPlayer) {
             int maxEval = Integer.MIN_VALUE;
             for (int col = 0; col < Board.COLUMNS; col++) {
-                if (board.isColumnAvailable(col)) {
-                    board.addDisc(col, aiDisc);
+                if (board.isColumnAvailable(col+1)) {
+                    board.addDisc(col+1, aiDisc);
                     int eval = alphabeta(board, depth - 1, alpha, beta, false);
-                    board.removeDisc(col);
+                    board.removeDisc(col+1);
                     maxEval = Math.max(maxEval, eval);
                     alpha = Math.max(alpha, eval);
                     if (beta <= alpha) break; // Beta cut-off
@@ -53,10 +54,10 @@ public class AIPlayer {
         } else {
             int minEval = Integer.MAX_VALUE;
             for (int col = 0; col < Board.COLUMNS; col++) {
-                if (board.isColumnAvailable(col)) {
-                    board.addDisc(col, humanDisc);
+                if (board.isColumnAvailable(col+1)) {
+                    board.addDisc(col+1, humanDisc);
                     int eval = alphabeta(board, depth - 1, alpha, beta, true);
-                    board.removeDisc(col);
+                    board.removeDisc(col+1);
                     minEval = Math.min(minEval, eval);
                     beta = Math.min(beta, eval);
                     if (beta <= alpha) break; // Alpha cut-off

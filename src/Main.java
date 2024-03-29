@@ -39,15 +39,17 @@ public class Main {
             board.printBoard();
             if (gameMode == 2 && currPlayer == aiDisc) {    // AI's turn
                 int aiMove = aiPlayer.getBestMove(board);
-                if (aiMove != -1) {  // Ensure AI made a valid move
-                    System.out.println("AI selects column " + (aiMove + 1)); // Adjust column index for user display
-                    System.out.println("Board state after AI's move:");
-                    board.printBoard();
-                    board.addDisc(aiMove + 1, aiDisc);  // Adjust column index for board
+                if (board.addDisc(aiMove + 1, aiDisc)) {  // Adjust column index for board
                     System.out.println("AI (Player " + aiDisc + ") places a disc in column " + (aiMove + 1)); // Adjust column index for user display
-                    currPlayer = 'R';  // Switch to human player
+                }
+                if (board.checkWin(aiDisc)) {
+                    endGame = true;
+                    System.out.println("AI (Player " + aiDisc + ") WINS!");
+                } else if (board.isFull()) {
+                    endGame = true;
+                    System.out.println("The game is a draw!!");
                 } else {
-                    System.out.println("AI couldn't make a move!");  // Handle case when AI can't make a move
+                    currPlayer = 'R';  // Switch to human player
                 }
             } else {   // Human player's turn
                 System.out.println("Player " + currPlayer + ", choose a column (1-7): ");
@@ -75,6 +77,7 @@ public class Main {
                     sc.next();  // Clear invalid input
                 }
             }
+
         }
         sc.close();
     }
