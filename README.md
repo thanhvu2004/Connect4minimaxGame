@@ -1,1 +1,1 @@
-![Alt text](./ai/img.png)
+![Alt text](./src/ai/img.png)
