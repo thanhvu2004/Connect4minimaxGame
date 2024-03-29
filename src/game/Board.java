@@ -21,9 +21,7 @@ public class Board {
     public Board copy() {
         Board newBoard = new Board();
         for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLUMNS; j++) {
-                newBoard.board[i][j] = this.board[i][j];
-            }
+            System.arraycopy(this.board[i], 0, newBoard.board[i], 0, COLUMNS);
         }
         return newBoard;
     }
