@@ -5,7 +5,7 @@ import game.Board;
 public class AIPlayer {
     private final char aiDisc;
     private final char humanDisc;
-    private static final int maxDepth = 4;
+    private static final int maxDepth = 100;
 
     public AIPlayer(char aiDisc, char humanDisc) {
         this.aiDisc = aiDisc;
@@ -20,9 +20,8 @@ public class AIPlayer {
         for (int col = 0; col < Board.COLUMNS; col++) {
             if (boardCopy.isColumnAvailable(col+1)) {
                 boardCopy.addDisc(col+1, aiDisc);
-                int score = alphabeta(boardCopy, maxDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+                int score = alphabeta(boardCopy, maxDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
                 boardCopy.removeDisc(col+1);
-
                 if (score > bestScore) {
                     bestScore = score;
                     bestMove = col;
@@ -35,7 +34,7 @@ public class AIPlayer {
 
     private int alphabeta(Board board, int depth, int alpha, int beta, boolean maximizingPlayer) {
         if (depth == 0 || board.isGameOver()) { // Corrected base case condition
-            return scorePosition(board, maximizingPlayer ? aiDisc : humanDisc);
+            return scorePosition(board, maximizingPlayer ? aiDisc : humanDisc) - scorePosition(board, maximizingPlayer ? humanDisc : aiDisc);
         }
 
         if (maximizingPlayer) {
@@ -73,6 +72,7 @@ public class AIPlayer {
         int opponentCount = 0;
         int emptyCount = 0;
 
+        // Count player's discs, opponent's discs, and empty slots in the window
         for (char cell : window) {
             if (cell == playerDisc) {
                 playerCount++;
@@ -83,6 +83,7 @@ public class AIPlayer {
             }
         }
 
+        // Assign scores based on player's potential moves
         if (playerCount == 4) {
             score += 100;
         } else if (playerCount == 3 && emptyCount == 1) {
@@ -93,13 +94,22 @@ public class AIPlayer {
 
         // Adjust penalties for opponent's potential moves
         if (opponentCount == 3 && emptyCount == 1) {
-            score -= 50; // Opponent has 3 in a row, block it
+            score -= 80; // Opponent has 3 in a row, block it
         } else if (opponentCount == 2 && emptyCount == 2) {
-            score -= 10; // Opponent has 2 in a row, slightly prioritize blocking
+            score -= 20; // Opponent has 2 in a row, slightly prioritize blocking
+        }
+
+        // New conditions
+        if (playerCount == 3 && emptyCount == 1 && window[0] == Board.EMPTY_SLOT && window[3] == Board.EMPTY_SLOT) {
+            score += 100; // AI has 3 in a row with empty slots on both ends
+        }
+        if (opponentCount == 3 && emptyCount == 1 && window[0] == Board.EMPTY_SLOT && window[3] == Board.EMPTY_SLOT) {
+            score -= 200; // Opponent has 3 in a row with empty slots on both ends, block it
         }
 
         return score;
     }
+
     private int scorePosition(Board board, char playerDisc) {
         int score = 0;
         // Score center column more highly, as it offers more opportunities for winning
