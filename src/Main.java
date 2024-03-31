@@ -14,18 +14,39 @@ public class Main {
         int gameMode = sc.nextInt();
 
         AIPlayer aiPlayer = null;
-        char aiDisc = 'Y';
-        char currPlayer = 'R';
+        char player1Disc = 'R';
+        char player2Disc = 'Y';
+        String player1Name = "Player 1";
+        String player2Name = "Player 2";
+        int currPlayer = 0;
 
         switch (gameMode) {
             case 1:
                 // Two Player mode
                 System.out.println("Starting a game for two players...");
+                System.out.print("Enter Player 1 name: ");
+                player1Name = sc.next();
+                System.out.print("Choose your symbol (‘R’ or ‘Y’): ");
+                player1Disc = sc.next().charAt(0);
+                System.out.print("Enter Player 2 name: ");
+                player2Name = sc.next();
+                player2Disc = (player1Disc == 'R') ? 'Y' : 'R';
+                System.out.println(player2Name + " will play as " + player2Disc);
                 break;
             case 2:
                 // Single-player vs AI mode
                 System.out.println("Starting a game against the AI...");
-                aiPlayer = new AIPlayer(aiDisc, currPlayer);
+                System.out.print("Enter your name: ");
+                player1Name = sc.next();
+                System.out.print("Choose your symbol (‘R’ or ‘Y’): ");
+                player1Disc = sc.next().charAt(0);
+                player2Disc = (player1Disc == 'R') ? 'Y' : 'R';
+                System.out.print("Who should go first? (player/computer): ");
+                String firstTurn = sc.next();
+                if (firstTurn.equalsIgnoreCase("player")) {
+                    currPlayer = 1;
+                }
+                aiPlayer = new AIPlayer(player2Disc, player1Disc);
                 break;
             default:
                 System.out.println("Invalid selection! Defaulting to two-player mode.");
@@ -36,38 +57,39 @@ public class Main {
         boolean endGame = false;
 
         while (!endGame) {
-            board.printBoard();
-            if (gameMode == 2 && currPlayer == aiDisc) {    // AI's turn
+            if (gameMode == 2 && currPlayer == 0) {    // AI's turn
                 int aiMove = aiPlayer.getBestMove(board);
-                if (board.addDisc(aiMove + 1, aiDisc)) {  // Adjust column index for board
-                    System.out.println("AI (Player " + aiDisc + ") places a disc in column " + (aiMove + 1)); // Adjust column index for user display
+                if (board.addDisc(aiMove + 1, player2Disc)) {  // Adjust column index for board
+                    System.out.println("AI (Player " + player2Disc + ") places a disc in column " + (aiMove + 1)); // Adjust column index for user display
                 }
-                if (board.checkWin(aiDisc)) {
+                if (board.checkWin(player2Disc)) {
                     endGame = true;
-                    System.out.println("AI (Player " + aiDisc + ") WINS!");
+                    board.printBoard();  // Show final board
+                    System.out.println("AI WINS!");
                 } else if (board.isFull()) {
                     endGame = true;
+                    board.printBoard();
                     System.out.println("The game is a draw!!");
                 } else {
-                    currPlayer = 'R';  // Switch to human player
+                    currPlayer = 1;  // Switch to human player
                 }
             } else {   // Human player's turn
-                System.out.println("Player " + currPlayer + ", choose a column (1-7): ");
+                board.printBoard();
+                System.out.println("Player " + (currPlayer == 1 ? player1Name : player2Name) + ", choose a column (1-7): ");
                 try {
                     int column = sc.nextInt();
-                    if (board.addDisc(column, currPlayer)) {
-                        System.out.println("Adding " + currPlayer + "'s disc to column " + column);
-                        board.printBoard();
-                        if (board.checkWin(currPlayer)) {
+                    if (board.addDisc(column, currPlayer == 1 ? player1Disc : player2Disc)) {
+                        System.out.println("Adding " + (currPlayer == 1 ? player1Name : player2Name) + "'s disc to column " + column);
+                        if (board.checkWin(currPlayer == 1 ? player1Disc : player2Disc)) {
                             endGame = true;
                             board.printBoard();  // Show final board
-                            System.out.println("Player " + currPlayer + " WINS!");
+                            System.out.println("Player " + (currPlayer == 1 ? player1Name : player2Name) + " WINS!");
                         } else if (board.isFull()) {
                             endGame = true;
                             board.printBoard();
                             System.out.println("The game is a draw!!");
                         } else {
-                            currPlayer = (gameMode == 1) ? (currPlayer == 'R' ? 'Y' : 'R') : aiDisc;
+                            currPlayer = (gameMode == 1) ? (currPlayer == 1 ? 2 : 1) : 0;
                         }
                     } else {
                         System.out.println("Column is full or invalid! Please choose another one");
@@ -77,7 +99,6 @@ public class Main {
                     sc.next();  // Clear invalid input
                 }
             }
-
         }
         sc.close();
     }
