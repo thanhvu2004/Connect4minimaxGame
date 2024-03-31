@@ -99,7 +99,6 @@ public class AIPlayer {
             score -= 20; // Opponent has 2 in a row, slightly prioritize blocking
         }
 
-        // New conditions
         if (playerCount == 3 && emptyCount == 1 && window[0] == Board.EMPTY_SLOT && window[3] == Board.EMPTY_SLOT) {
             score += 100; // AI has 3 in a row with empty slots on both ends
         }
