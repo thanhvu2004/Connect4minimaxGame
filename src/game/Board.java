@@ -108,7 +108,7 @@ public class Board {
     }
 
     public boolean isGameOver() {
-        return checkWin('X') || checkWin('O') || isFull();
+        return checkWin('Y') || checkWin('R') || isFull();
     }
 
     // Available column for a move
@@ -125,8 +125,8 @@ public class Board {
         if (column < 1 || column > COLUMNS) {
             return;
         }
-        column--;
-        for (int i = ROWS - 1; i >= 0; i--) {
+        column--; // Adjust for 0-based index
+        for (int i = 0; i < ROWS; i++) {
             if (board[i][column] != EMPTY_SLOT) {
                 board[i][column] = EMPTY_SLOT;
                 return;

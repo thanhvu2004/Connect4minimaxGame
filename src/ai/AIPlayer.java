@@ -6,11 +6,9 @@ public class AIPlayer {
     private final char aiDisc;
     private final char humanDisc;
     private static final int MAX_DEPTH = 4;
-    private static final int WINNING_LENGTH = 4;
-    private static final int IMMEDIATE_WIN_SCORE = 10000;
-    private static final int ONE_MOVE_WIN_SCORE = 100;
-    private static final int TWO_MOVES_WIN_SCORE = 10;
-    private static final int EARLY_GAME_ADVANTAGE_SCORE = 5;
+    private static final int WIN_SCORE = 10000;
+    private static final int THREE_IN_A_ROW_SCORE = 400;
+    private static final int TWO_IN_A_ROW_SCORE = 10;
 
     public AIPlayer(char aiDisc, char humanDisc) {
         this.aiDisc = aiDisc;
@@ -33,6 +31,7 @@ public class AIPlayer {
                 }
             }
         }
+
         // If bestMove is still -1 here, it means all columns are full and no valid move can be made
         return bestMove;
     }
@@ -51,7 +50,7 @@ public class AIPlayer {
                     board.removeDisc(col + 1);
                     maxEval = Math.max(maxEval, eval);
                     alpha = Math.max(alpha, eval);
-                    if (beta <= alpha) break; // Beta cut-off
+                    if (beta <= alpha) break;
                 }
             }
             return maxEval;
@@ -64,51 +63,73 @@ public class AIPlayer {
                     board.removeDisc(col + 1);
                     minEval = Math.min(minEval, eval);
                     beta = Math.min(beta, eval);
-                    if (beta <= alpha) break; // Alpha cut-off
+                    if (beta <= alpha) break;
                 }
             }
             return minEval;
         }
     }
 
-    private int evaluateBoardForPlayer(Board board, char player) {
+    public static int evaluateBoardForPlayer(Board board, char player) {
         int score = 0;
-        int boardRows = Board.ROWS;
-        int boardCols = Board.COLUMNS;
 
-        for (int row = 0; row < boardRows; row++) {
-            for (int col = 0; col < boardCols; col++) {
-                for (int[] dir : new int[][]{{0, 1}, {1, 0}, {1, 1}, {1, -1}}) {
-                    int countPlayerPieces = 0;
-                    int countEmpty = 0;
+        // Check for 4 in a row, 3 in a row, and 2 in a row.
+        score += checkLines(board, player, 4) * WIN_SCORE;
+        score += checkLines(board, player, 3) * THREE_IN_A_ROW_SCORE;
+        score += checkLines(board, player, 2) * TWO_IN_A_ROW_SCORE;
 
-                    for (int i = 0; i < WINNING_LENGTH; i++) {
-                        int newRow = row + dir[0] * i;
-                        int newCol = col + dir[1] * i;
+        return score;
+    }
 
-                        if (newRow >= 0 && newRow < boardRows && newCol >= 0 && newCol < boardCols) {
-                            if (board.getCell(newRow, newCol) == player) {
-                                countPlayerPieces++;
-                            } else if (board.getCell(newRow, newCol) == Board.EMPTY_SLOT) {
-                                countEmpty++;
-                            }
+    private static int checkLines(Board board, char player, int length) {
+        int count = 0;
+
+        for (int row = 0; row < Board.ROWS; row++) {
+            for (int col = 0; col < Board.COLUMNS; col++) {
+                if (col + length <= Board.COLUMNS) { // Check horizontal
+                    boolean match = true;
+                    for (int i = 0; i < length; i++) {
+                        if (board.getCell(row, col + i) != player) {
+                            match = false;
+                            break;
                         }
                     }
-
-                    if (countPlayerPieces == WINNING_LENGTH) {
-                        score += IMMEDIATE_WIN_SCORE;
-                    } else if (countPlayerPieces == WINNING_LENGTH - 1 && countEmpty == 1) {
-                        score += ONE_MOVE_WIN_SCORE;
-                    } else if (countPlayerPieces == WINNING_LENGTH - 2 && countEmpty == 2) {
-                        score += TWO_MOVES_WIN_SCORE;
-                    } else if (countPlayerPieces > 0 && countEmpty == (WINNING_LENGTH - countPlayerPieces)) {
-                        score += EARLY_GAME_ADVANTAGE_SCORE;
+                    if (match) count++;
+                }
+                if (row + length <= Board.ROWS) { // Check vertical
+                    boolean match = true;
+                    for (int i = 0; i < length; i++) {
+                        if (board.getCell(row + i, col) != player) {
+                            match = false;
+                            break;
+                        }
                     }
+                    if (match) count++;
+                }
+                if (row + length <= Board.ROWS && col + length <= Board.COLUMNS) { // Check diagonal (\)
+                    boolean match = true;
+                    for (int i = 0; i < length; i++) {
+                        if (board.getCell(row + i, col + i) != player) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) count++;
+                }
+                if (row + length <= Board.ROWS && col - length + 1 >= 0) { // Check anti-diagonal (/)
+                    boolean match = true;
+                    for (int i = 0; i < length; i++) {
+                        if (board.getCell(row + i, col - i) != player) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) count++;
                 }
             }
         }
 
-        return score;
+        return count;
     }
 
     private int scorePosition(Board board) {
