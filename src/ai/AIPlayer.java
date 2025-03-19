@@ -1,3 +1,6 @@
+// Yasaman Mirvahabi Sabet 101217770
+// Dorsa Mohammadi 101397591
+// Thanh Vu Le 101411302
 package ai;
 
 import game.Board;
@@ -5,6 +8,7 @@ import game.Board;
 public class AIPlayer {
     private final char aiDisc;
     private final char humanDisc;
+    public static final char EMPTY_SLOT = '.';
     private static final int MAX_DEPTH = 4;
     private static final int WIN_SCORE = 10000;
     private static final int THREE_IN_A_ROW_SCORE = 400;
@@ -23,7 +27,9 @@ public class AIPlayer {
         for (int col = 0; col < Board.COLUMNS; col++) {
             if (boardCopy.isColumnAvailable(col + 1)) {
                 boardCopy.addDisc(col + 1, aiDisc);
-                int score = alphabeta(boardCopy, MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+
+                int score = alphabeta(boardCopy, MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+
                 boardCopy.removeDisc(col + 1);
                 if (score > bestScore) {
                     bestScore = score;
