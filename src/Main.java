@@ -26,7 +26,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Set the application icon
-        System.out.println(getClass().getResource("/resources/icon.png"));
         primaryStage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/resources/icon.png")));
 
         // Create the start screen
